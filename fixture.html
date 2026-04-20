@@ -1,1 +1,109 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>機材詳細</title>
+  <style>
+    :root {
+      --bg-color: #F8FAF7; --card-bg: #FFFFFF; --text-main: #1A1C19; --text-sub: #43483E;
+      --primary-container: #C2E7FF; --on-primary-container: #001D35;
+      --error-container: #FFDAD6; --on-error-container: #410002;
+      --tertiary-container: #EADDFF; --on-tertiary-container: #21005D;
+      --nav-height: 80px; --header-height: 64px;
+    }
+    body { font-family: 'Helvetica Neue', Arial, sans-serif; background-color: var(--bg-color); color: var(--text-main); margin: 0; padding: var(--header-height) 20px var(--nav-height) 20px; max-width: 800px; margin-left: auto; margin-right: auto; }
+    header { position: fixed; top: 0; left: 0; width: 100%; height: var(--header-height); background-color: var(--bg-color); display: flex; align-items: center; justify-content: center; z-index: 100; box-shadow: 0 1px 0 rgba(0,0,0,0.05); }
+    header h1 { font-size: 20px; font-weight: 800; margin: 0; }
+    .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; height: var(--nav-height); background-color: var(--card-bg); display: flex; justify-content: space-around; align-items: center; box-shadow: 0 -2px 16px rgba(0,0,0,0.05); z-index: 100; }
+    .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; text-decoration: none; color: var(--text-sub); width: 64px; height: 64px; border-radius: 16px; }
+    .btn { width: 100%; padding: 16px; border: none; border-radius: 100px; font-size: 16px; font-weight: bold; cursor: pointer; text-align: center; display: inline-block; box-sizing: border-box; }
+    .btn:active { transform: scale(0.96); }
+    .btn-primary { background-color: var(--primary-container); color: var(--on-primary-container); }
+    .btn-disabled { background-color: #E0E0E0; color: #9E9E9E; cursor: not-allowed; }
+    .fixture-image-placeholder { width: 100%; height: 200px; background-color: var(--tertiary-container); border-radius: 24px; margin-bottom: 24px; display: flex; align-items: center; justify-content: center; color: var(--on-tertiary-container); font-weight: bold; margin-top: 24px; }
+    .item-category { display: inline-block; background-color: var(--card-bg); color: var(--text-sub); padding: 6px 12px; border-radius: 100px; font-size: 12px; font-weight: bold; margin-bottom: 12px; }
+    .status-container { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+    .status-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .status-available .status-text { color: var(--on-primary-container); }
+    .status-available .status-dot { background-color: var(--on-primary-container); }
+    .status-rented .status-text { color: var(--on-error-container); }
+    .status-rented .status-dot { background-color: var(--on-error-container); }
+    .empty-message { text-align: center; padding: 40px 0; color: var(--text-sub); font-weight: bold; }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="index.html" style="position:absolute; left:20px; text-decoration:none; color:var(--text-sub); font-weight:bold;">← 戻る</a>
+    <h1>機材詳細</h1>
+  </header>
 
+  <div id="fixture-content"></div>
+
+  <nav class="bottom-nav">
+    <a href="index.html" class="nav-item"><div style="font-size:20px; font-weight:bold;">H</div><span class="nav-label">ホーム</span></a>
+    <a href="cart.html" class="nav-item"><div style="font-size:20px; font-weight:bold;">C</div><span class="nav-label">カート</span></a>
+    <a href="mypage.html" class="nav-item"><div style="font-size:20px; font-weight:bold;">M</div><span class="nav-label">マイページ</span></a>
+  </nav>
+
+  <script>
+    function renderFixture() {
+      const content = document.getElementById('fixture-content');
+      const params = new URLSearchParams(window.location.search);
+      const id = params.get('ID') || params.get('id'); // IDパラメーターを取得
+
+      let data = JSON.parse(localStorage.getItem('equipmentData') || '[]');
+      let cart = JSON.parse(localStorage.getItem('cartItemIds') || '[]');
+      const item = data.find(i => i.id === id);
+      
+      if (!item) {
+        content.innerHTML = '<div class="empty-message">機材が見つかりません。<br>URLが正しいか確認してください。</div>';
+        return;
+      }
+
+      const isAvailable = item.status === "available";
+      const inCart = cart.includes(item.id);
+      
+      let actionHtml = '';
+      if (!isAvailable) {
+        actionHtml = `<button class="btn btn-disabled" disabled>現在貸出中です</button>`;
+      } else if (inCart) {
+        actionHtml = `<button class="btn" style="background:var(--card-bg); border: 2px solid var(--primary-container);" onclick="removeFromCart('${item.id}')">カートから外す</button>`;
+      } else {
+        actionHtml = `<button class="btn btn-primary" onclick="addToCart('${item.id}')">カートに入れる</button>`;
+      }
+
+      content.innerHTML = `
+        <div class="fixture-image-placeholder">画像プレビューエリア</div>
+        <span class="item-category">${item.category} / ${item.maker}</span>
+        <h2 style="font-size: 28px; margin: 8px 0;">${item.name}</h2>
+        <div class="status-container status-${item.status}" style="margin-bottom: 24px;">
+          <span class="status-dot"></span>
+          <span class="status-text">${isAvailable ? '貸出可能' : '貸出中'}</span>
+        </div>
+        <p style="line-height: 1.6; margin-bottom: 32px; color: var(--text-sub);">${item.desc}</p>
+        ${actionHtml}
+      `;
+    }
+
+    window.addToCart = (id) => {
+      let cart = JSON.parse(localStorage.getItem('cartItemIds') || '[]');
+      if (!cart.includes(id)) {
+        cart.push(id);
+        localStorage.setItem('cartItemIds', JSON.stringify(cart));
+      }
+      alert('カートに追加しました');
+      renderFixture();
+    };
+
+    window.removeFromCart = (id) => {
+      let cart = JSON.parse(localStorage.getItem('cartItemIds') || '[]');
+      cart = cart.filter(i => i !== id);
+      localStorage.setItem('cartItemIds', JSON.stringify(cart));
+      renderFixture();
+    };
+
+    renderFixture();
+  </script>
+</body>
+</html>
