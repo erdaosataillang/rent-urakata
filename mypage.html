@@ -1,1 +1,137 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>マイページ</title>
+  <style>
+    :root {
+      --bg-color: #F8FAF7; --card-bg: #FFFFFF; --text-main: #1A1C19; --text-sub: #43483E;
+      --primary-container: #C2E7FF; --on-primary-container: #001D35;
+      --error-container: #FFDAD6; --on-error-container: #410002;
+      --tertiary-container: #EADDFF; --on-tertiary-container: #21005D;
+      --nav-height: 80px; --header-height: 64px;
+    }
+    body { font-family: 'Helvetica Neue', Arial, sans-serif; background-color: var(--bg-color); color: var(--text-main); margin: 0; padding: var(--header-height) 20px var(--nav-height) 20px; max-width: 800px; margin-left: auto; margin-right: auto; }
+    header { position: fixed; top: 0; left: 0; width: 100%; height: var(--header-height); background-color: var(--bg-color); display: flex; align-items: center; justify-content: center; z-index: 100; box-shadow: 0 1px 0 rgba(0,0,0,0.05); }
+    header h1 { font-size: 20px; font-weight: 800; margin: 0; }
+    .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; height: var(--nav-height); background-color: var(--card-bg); display: flex; justify-content: space-around; align-items: center; box-shadow: 0 -2px 16px rgba(0,0,0,0.05); z-index: 100; }
+    .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; text-decoration: none; color: var(--text-sub); width: 64px; height: 64px; border-radius: 16px; }
+    .nav-item.active { background-color: var(--primary-container); color: var(--on-primary-container); font-weight: bold; }
+    .nav-label { font-size: 12px; margin-top: 4px; }
+    .btn { width: 100%; padding: 16px; border: none; border-radius: 100px; font-size: 16px; font-weight: bold; cursor: pointer; text-align: center; }
+    .btn:active { transform: scale(0.96); }
+    .btn-primary { background-color: var(--primary-container); color: var(--on-primary-container); }
+    .btn-error { background-color: var(--error-container); color: var(--on-error-container); }
+    .login-input { width: 100%; box-sizing: border-box; padding: 16px; font-size: 16px; border: 1px solid rgba(0,0,0,0.1); border-radius: 16px; margin-bottom: 16px; outline: none; }
+    .grid-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+    .item-card { background-color: var(--card-bg); border-radius: 28px; padding: 24px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
+    .item-category { display: inline-block; background-color: var(--bg-color); color: var(--text-sub); padding: 6px 12px; border-radius: 100px; font-size: 12px; font-weight: bold; margin-bottom: 12px; }
+    .item-name { font-size: 20px; font-weight: bold; margin: 0 0 8px 0; }
+    .empty-message { text-align: center; padding: 40px 0; color: var(--text-sub); font-weight: bold; grid-column: 1/-1; }
+  </style>
+</head>
+<body>
+  <header><h1>マイページ</h1></header>
 
+  <h2 style="margin-top: 24px;">アカウント情報</h2>
+
+  <div id="mypage-login-section" style="background: var(--card-bg); padding: 24px; border-radius: 28px;">
+    <p style="margin-top: 0; margin-bottom: 20px;">システムを利用するにはログインしてください。(テスト用: 任意の文字を入力)</p>
+    <input type="text" id="username-input" class="login-input" placeholder="ユーザー名">
+    <button id="login-btn" class="btn btn-primary">ログイン</button>
+  </div>
+
+  <div id="mypage-user-section" style="display: none;">
+    <div style="background: var(--tertiary-container); color: var(--on-tertiary-container); padding: 24px; border-radius: 28px; margin-bottom: 24px;">
+      <p style="margin: 0; font-size: 14px;">ようこそ</p>
+      <h3 id="mypage-username" style="margin: 8px 0 16px 0; font-size: 24px;"></h3>
+      <button id="logout-btn" class="btn" style="background: var(--card-bg); color: var(--text-main); width: auto; padding: 10px 24px;">ログアウト</button>
+    </div>
+
+    <h3>現在レンタル中の機材</h3>
+    <div id="rented-items-list" class="grid-list"></div>
+  </div>
+
+  <nav class="bottom-nav">
+    <a href="index.html" class="nav-item"><div style="font-size:20px; font-weight:bold;">H</div><span class="nav-label">ホーム</span></a>
+    <a href="cart.html" class="nav-item"><div style="font-size:20px; font-weight:bold;">C</div><span class="nav-label">カート</span></a>
+    <a href="mypage.html" class="nav-item active"><div style="font-size:20px; font-weight:bold;">M</div><span class="nav-label">マイページ</span></a>
+  </nav>
+
+  <script>
+    const loginSection = document.getElementById('mypage-login-section');
+    const userSection = document.getElementById('mypage-user-section');
+    const usernameInput = document.getElementById('username-input');
+
+    document.getElementById('login-btn').addEventListener('click', () => {
+      if (usernameInput.value.trim() === '') {
+        alert('名前を入力してください'); return;
+      }
+      localStorage.setItem('currentUser', usernameInput.value.trim());
+      renderMypage();
+    });
+
+    document.getElementById('logout-btn').addEventListener('click', () => {
+      localStorage.removeItem('currentUser');
+      renderMypage();
+    });
+
+    function renderMypage() {
+      const currentUser = localStorage.getItem('currentUser');
+
+      if (!currentUser) {
+        loginSection.style.display = 'block';
+        userSection.style.display = 'none';
+      } else {
+        loginSection.style.display = 'none';
+        userSection.style.display = 'block';
+        document.getElementById('mypage-username').textContent = `${currentUser} さん`;
+
+        const list = document.getElementById('rented-items-list');
+        let rented = JSON.parse(localStorage.getItem('rentedItemIds') || '[]');
+        let data = JSON.parse(localStorage.getItem('equipmentData') || '[]');
+        
+        list.innerHTML = '';
+
+        if (rented.length === 0) {
+          list.innerHTML = '<div class="empty-message">レンタルしている機材はありません。</div>';
+        } else {
+          rented.forEach(id => {
+            const item = data.find(i => i.id === id);
+            if(!item) return;
+            const div = document.createElement('div');
+            div.className = "item-card";
+            div.innerHTML = `
+              <div>
+                <span class="item-category">${item.category}</span>
+                <h3 class="item-name">${item.name}</h3>
+              </div>
+              <button class="btn btn-error" style="margin-top:16px;" onclick="returnItem('${item.id}')">返却する</button>
+            `;
+            list.appendChild(div);
+          });
+        }
+      }
+    }
+
+    window.returnItem = (id) => {
+      let rented = JSON.parse(localStorage.getItem('rentedItemIds') || '[]');
+      let data = JSON.parse(localStorage.getItem('equipmentData') || '[]');
+      
+      const item = data.find(i => i.id === id);
+      if (item) item.status = 'available';
+      
+      rented = rented.filter(i => i !== id);
+      
+      localStorage.setItem('equipmentData', JSON.stringify(data));
+      localStorage.setItem('rentedItemIds', JSON.stringify(rented));
+      
+      alert('機材を返却しました。');
+      renderMypage();
+    };
+
+    renderMypage();
+  </script>
+</body>
+</html>
