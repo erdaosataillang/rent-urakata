@@ -4,40 +4,29 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>カート</title>
+  <link rel="stylesheet" href="common.css">
   <style>
-    :root {
-      --bg-color: #F8FAF7; --card-bg: #FFFFFF; --text-main: #1A1C19; --text-sub: #43483E;
-      --primary-container: #C2E7FF; --on-primary-container: #001D35;
-      --error-container: #FFDAD6; --on-error-container: #410002;
-      --nav-height: 80px; --header-height: 64px;
-    }
-    body { font-family: 'Helvetica Neue', Arial, sans-serif; background-color: var(--bg-color); color: var(--text-main); margin: 0; padding: var(--header-height) 20px var(--nav-height) 20px; max-width: 800px; margin-left: auto; margin-right: auto; }
-    header { position: fixed; top: 0; left: 0; width: 100%; height: var(--header-height); background-color: var(--bg-color); display: flex; align-items: center; justify-content: center; z-index: 100; box-shadow: 0 1px 0 rgba(0,0,0,0.05); }
-    header h1 { font-size: 20px; font-weight: 800; margin: 0; }
-    .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; height: var(--nav-height); background-color: var(--card-bg); display: flex; justify-content: space-around; align-items: center; box-shadow: 0 -2px 16px rgba(0,0,0,0.05); z-index: 100; }
-    .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; text-decoration: none; color: var(--text-sub); width: 64px; height: 64px; border-radius: 16px; }
-    .nav-item.active { background-color: var(--primary-container); color: var(--on-primary-container); font-weight: bold; }
-    .nav-label { font-size: 12px; margin-top: 4px; }
-    .btn { width: 100%; padding: 16px; border: none; border-radius: 100px; font-size: 16px; font-weight: bold; cursor: pointer; text-align: center; text-decoration: none; display: inline-block; box-sizing: border-box; }
-    .btn:active { transform: scale(0.96); }
-    .btn-primary { background-color: var(--primary-container); color: var(--on-primary-container); }
-    .empty-message { text-align: center; padding: 40px 0; color: var(--text-sub); font-weight: bold; }
+    /* カート固有のスタイル */
+    .cart-item { background: var(--card-bg); padding: 32px 40px; border-radius: 24px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 16px rgba(0,0,0,0.03); }
+    .cart-actions { margin-top: 48px; display: flex; flex-direction: column; align-items: flex-end; }
   </style>
 </head>
 <body>
-  <header><h1>カート</h1></header>
 
-  <h2 style="margin-top: 24px;">カート内の機材</h2>
-  <div id="cart-items-list" style="margin-bottom: 24px;"></div>
-  <div id="cart-actions"></div>
+  <div id="sidebar-container"></div>
+  
+  <main class="main-content">
+    <h2>カート内の機材</h2>
+    
+    <div id="cart-items-list"></div>
+    <div id="cart-actions" class="cart-actions"></div>
+  </main>
 
-  <nav class="bottom-nav">
-    <a href="index.html" class="nav-item"><div style="font-size:20px; font-weight:bold;">H</div><span class="nav-label">ホーム</span></a>
-    <a href="cart.html" class="nav-item active"><div style="font-size:20px; font-weight:bold;">C</div><span class="nav-label">カート</span></a>
-    <a href="mypage.html" class="nav-item"><div style="font-size:20px; font-weight:bold;">M</div><span class="nav-label">マイページ</span></a>
-  </nav>
-
+  <script src="common.js"></script>
   <script>
+    initCommonState();
+    loadSidebar('cart');
+
     function renderCart() {
       const list = document.getElementById('cart-items-list');
       const actions = document.getElementById('cart-actions');
@@ -58,20 +47,20 @@
         const item = data.find(i => i.id === id);
         if(!item) return;
         const div = document.createElement('div');
-        div.style.cssText = "background:var(--card-bg); padding:16px; border-radius:20px; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center;";
+        div.className = "cart-item";
         div.innerHTML = `
           <div>
-            <div style="font-size:12px; color:var(--text-sub);">${item.category}</div>
-            <div style="font-weight:bold; font-size:18px;">${item.name}</div>
+            <div style="font-size:14px; color:var(--text-sub); margin-bottom: 8px; font-weight: bold;">${item.category} / ${item.maker}</div>
+            <div style="font-weight:bold; font-size:24px;">${item.name}</div>
           </div>
-          <button onclick="removeFromCart('${item.id}')" style="background:none; border:none; color:var(--on-error-container); font-weight:bold; cursor:pointer;">削除</button>
+          <button onclick="removeFromCart('${item.id}')" style="background:none; border:none; color:var(--on-error-container); font-weight:bold; font-size: 16px; cursor:pointer;">削除</button>
         `;
         list.appendChild(div);
       });
 
       if (!currentUser) {
         actions.innerHTML = `
-          <p style="text-align:center; color:var(--text-sub); font-size:14px;">※レンタル手続きに進むにはログインが必要です。</p>
+          <p style="color:var(--text-sub); font-size:16px; margin-bottom: 16px; font-weight: bold;">※レンタル手続きに進むにはログインが必要です。</p>
           <a href="mypage.html" class="btn btn-primary">ログイン画面へ</a>
         `;
       } else {
@@ -99,10 +88,10 @@
       
       localStorage.setItem('equipmentData', JSON.stringify(data));
       localStorage.setItem('rentedItemIds', JSON.stringify(rented));
-      localStorage.setItem('cartItemIds', JSON.stringify([])); // カートを空にする
+      localStorage.setItem('cartItemIds', JSON.stringify([]));
       
       alert('レンタルの手続きが完了しました！');
-      window.location.href = 'mypage.html'; // マイページへ遷移
+      window.location.href = 'mypage.html';
     };
 
     renderCart();
