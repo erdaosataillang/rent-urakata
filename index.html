@@ -1,76 +1,42 @@
-
 <!DOCTYPE html>
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>レンタル機材一覧</title>
+  <link rel="stylesheet" href="common.css">
   <style>
-    :root {
-      --bg-color: #F8FAF7; --card-bg: #FFFFFF; --text-main: #1A1C19; --text-sub: #43483E;
-      --primary-container: #C2E7FF; --on-primary-container: #001D35;
-      --error-container: #FFDAD6; --on-error-container: #410002;
-      --nav-height: 80px; --header-height: 64px;
-    }
-    body { font-family: 'Helvetica Neue', Arial, sans-serif; background-color: var(--bg-color); color: var(--text-main); margin: 0; padding: var(--header-height) 20px var(--nav-height) 20px; max-width: 800px; margin-left: auto; margin-right: auto; }
-    header { position: fixed; top: 0; left: 0; width: 100%; height: var(--header-height); background-color: var(--bg-color); display: flex; align-items: center; justify-content: center; z-index: 100; box-shadow: 0 1px 0 rgba(0,0,0,0.05); }
-    header h1 { font-size: 20px; font-weight: 800; margin: 0; }
-    .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; height: var(--nav-height); background-color: var(--card-bg); display: flex; justify-content: space-around; align-items: center; box-shadow: 0 -2px 16px rgba(0,0,0,0.05); z-index: 100; }
-    .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; text-decoration: none; color: var(--text-sub); width: 64px; height: 64px; border-radius: 16px; }
-    .nav-item.active { background-color: var(--primary-container); color: var(--on-primary-container); font-weight: bold; }
-    .nav-label { font-size: 12px; margin-top: 4px; }
-    .search-container { margin-top: 24px; margin-bottom: 24px; }
-    .search-input { width: 100%; box-sizing: border-box; padding: 16px 24px; font-size: 16px; border: none; border-radius: 100px; background-color: var(--card-bg); outline: none; box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
-    .search-filters { display: flex; gap: 12px; margin-top: 12px; }
-    .search-select { flex: 1; padding: 12px 20px; font-size: 14px; border: none; border-radius: 100px; background-color: var(--card-bg); outline: none; }
-    .grid-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
-    .item-card { background-color: var(--card-bg); border-radius: 28px; padding: 24px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 2px 8px rgba(0,0,0,0.03); text-decoration: none; color: inherit; transition: transform 0.2s; }
-    .item-card:hover { transform: translateY(-2px); }
-    .item-category { display: inline-block; background-color: var(--bg-color); color: var(--text-sub); padding: 6px 12px; border-radius: 100px; font-size: 12px; font-weight: bold; margin-bottom: 12px; }
-    .item-name { font-size: 20px; font-weight: bold; margin: 0 0 8px 0; }
-    .status-container { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
-    .status-dot { width: 10px; height: 10px; border-radius: 50%; }
-    .status-available .status-text { color: var(--on-primary-container); }
-    .status-available .status-dot { background-color: var(--on-primary-container); }
-    .status-rented .status-text { color: var(--on-error-container); }
-    .status-rented .status-dot { background-color: var(--on-error-container); }
-    .empty-message { text-align: center; padding: 40px 0; color: var(--text-sub); font-weight: bold; grid-column: 1/-1; }
+    /* 一覧ページ固有のスタイル */
+    .search-container { background: var(--card-bg); padding: 32px; border-radius: 28px; margin-bottom: 40px; box-shadow: 0 4px 16px rgba(0,0,0,0.03); }
+    .search-input { width: 100%; box-sizing: border-box; padding: 16px 24px; font-size: 16px; border: 1px solid rgba(0,0,0,0.1); border-radius: 100px; background-color: var(--bg-color); outline: none; margin-bottom: 16px; transition: border-color 0.3s; }
+    .search-input:focus { border-color: var(--text-sub); }
+    .search-filters { display: flex; gap: 16px; }
+    .search-select { flex: 1; padding: 16px 24px; font-size: 16px; border: 1px solid rgba(0,0,0,0.1); border-radius: 100px; background-color: var(--bg-color); outline: none; cursor: pointer; }
   </style>
 </head>
 <body>
-  <header><h1>機材一覧</h1></header>
 
-  <div class="search-container">
-    <input type="text" id="search-input" class="search-input" placeholder="機材名で検索...">
-    <div class="search-filters">
-      <select id="category-select" class="search-select"><option value="">すべてのジャンル</option></select>
-      <select id="maker-select" class="search-select"><option value="">すべてのメーカー</option></select>
-    </div>
-  </div>
+  <!-- サイドバーがここに挿入されます -->
+  <div id="sidebar-container"></div>
   
-  <div id="index-items-list" class="grid-list"></div>
+  <main class="main-content">
+    <h2>すべての機材</h2>
+    
+    <div class="search-container">
+      <input type="text" id="search-input" class="search-input" placeholder="機材名で検索...">
+      <div class="search-filters">
+        <select id="category-select" class="search-select"><option value="">すべてのジャンル</option></select>
+        <select id="maker-select" class="search-select"><option value="">すべてのメーカー</option></select>
+      </div>
+    </div>
+    
+    <div id="index-items-list" class="grid-list"></div>
+  </main>
 
-  <nav class="bottom-nav">
-    <a href="index.html" class="nav-item active"><div style="font-size:20px; font-weight:bold;">H</div><span class="nav-label">ホーム</span></a>
-    <a href="cart.html" class="nav-item"><div style="font-size:20px; font-weight:bold;">C</div><span class="nav-label">カート</span></a>
-    <a href="mypage.html" class="nav-item"><div style="font-size:20px; font-weight:bold;">M</div><span class="nav-label">マイページ</span></a>
-  </nav>
-
+  <script src="common.js"></script>
   <script>
-    // 状態の初期化
-    function initState() {
-      const defaultData = [
-        { id: "item1", name: "Sony α7 IV", category: "カメラ", maker: "Sony", status: "available", desc: "高画質なフルサイズミラーレスカメラ。動画撮影にも最適です。" },
-        { id: "item2", name: "DJI RS 3 Pro", category: "ジンバル", maker: "DJI", status: "rented", desc: "プロフェッショナル向けのジンバルスタビライザー。" },
-        { id: "item3", name: "Sennheiser MKE 600", category: "マイク", maker: "Sennheiser", status: "available", desc: "クリアな音質で録音できるショットガンマイク。" },
-        { id: "item4", name: "Aputure 300d II", category: "照明", maker: "Aputure", status: "available", desc: "強力で自然な光を作り出すLEDビデオライト。" },
-        { id: "item5", name: "MacBook Pro M3", category: "PC", maker: "Apple", status: "rented", desc: "動画編集もサクサクこなせる高性能ノートPC。" },
-        { id: "item6", name: "HDMIケーブル 10m", category: "ケーブル", maker: "その他", status: "available", desc: "長距離伝送可能なHDMIケーブルです。" }
-      ];
-      if (!localStorage.getItem('equipmentData')) localStorage.setItem('equipmentData', JSON.stringify(defaultData));
-      if (!localStorage.getItem('cartItemIds')) localStorage.setItem('cartItemIds', JSON.stringify([]));
-      if (!localStorage.getItem('rentedItemIds')) localStorage.setItem('rentedItemIds', JSON.stringify([]));
-    }
+    initCommonState();
+    loadSidebar('index');
 
     const searchInput = document.getElementById('search-input');
     const categorySelect = document.getElementById('category-select');
@@ -107,7 +73,7 @@
       filtered.forEach(item => {
         const isAvailable = item.status === "available";
         const a = document.createElement('a');
-        a.href = `fixture.html?ID=${item.id}`; // 詳細ページへIDを渡す
+        a.href = `fixture.html?ID=${item.id}`;
         a.className = `item-card status-${item.status}`;
         a.innerHTML = `
           <div>
@@ -123,7 +89,6 @@
       });
     }
 
-    initState();
     initFilters(JSON.parse(localStorage.getItem('equipmentData')));
     renderIndex();
   </script>
