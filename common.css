@@ -1,1 +1,140 @@
+/* 共通スタイル */
+:root {
+  --bg-color: #F8FAF7;
+  --card-bg: #FFFFFF;
+  --text-main: #1A1C19;
+  --text-sub: #43483E;
+  
+  --primary-container: #C2E7FF;
+  --on-primary-container: #001D35;
+  
+  --error-container: #FFDAD6;
+  --on-error-container: #410002;
 
+  --tertiary-container: #EADDFF;
+  --on-tertiary-container: #21005D;
+  
+  --sidebar-width: 280px;
+}
+
+body {
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-main);
+  margin: 0;
+  display: flex;
+  min-height: 100vh;
+}
+
+/* メインコンテンツエリア（サイドバーの右側） */
+.main-content {
+  margin-left: var(--sidebar-width);
+  padding: 48px;
+  width: calc(100% - var(--sidebar-width));
+  box-sizing: border-box;
+  max-width: 1200px;
+}
+
+h2 {
+  font-size: 28px;
+  font-weight: 800;
+  margin-top: 0;
+  margin-bottom: 32px;
+  letter-spacing: -0.5px;
+}
+
+/* 共通ボタン */
+.btn {
+  padding: 16px 32px;
+  border: none;
+  border-radius: 100px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  text-align: center;
+  display: inline-block;
+  box-sizing: border-box;
+  transition: transform 0.2s, background-color 0.2s;
+  text-decoration: none;
+  width: 100%;
+  max-width: 300px;
+}
+.btn:active {
+  transform: scale(0.96);
+}
+.btn-primary {
+  background-color: var(--primary-container);
+  color: var(--on-primary-container);
+}
+.btn-error {
+  background-color: var(--error-container);
+  color: var(--on-error-container);
+}
+.btn-disabled {
+  background-color: #E0E0E0;
+  color: #9E9E9E;
+  cursor: not-allowed;
+}
+
+/* 機材カードのリスト */
+.grid-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 24px;
+}
+.item-card {
+  background-color: var(--card-bg);
+  border-radius: 28px;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.03);
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.2s;
+}
+.item-card:hover {
+  transform: translateY(-4px);
+}
+.item-category {
+  display: inline-block;
+  background-color: var(--bg-color);
+  color: var(--text-sub);
+  padding: 6px 12px;
+  border-radius: 100px;
+  font-size: 12px;
+  font-weight: bold;
+  margin-bottom: 16px;
+}
+.item-name {
+  font-size: 22px;
+  font-weight: bold;
+  margin: 0 0 12px 0;
+}
+
+/* ステータス表示（貸出可能・貸出中） */
+.status-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+.status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+.status-available .status-text { color: var(--on-primary-container); font-weight: bold; font-size: 14px;}
+.status-available .status-dot { background-color: var(--on-primary-container); }
+.status-rented .status-text { color: var(--on-error-container); font-weight: bold; font-size: 14px;}
+.status-rented .status-dot { background-color: var(--on-error-container); }
+
+.empty-message {
+  text-align: center;
+  padding: 60px 0;
+  color: var(--text-sub);
+  font-weight: bold;
+  grid-column: 1/-1;
+  font-size: 18px;
+}
