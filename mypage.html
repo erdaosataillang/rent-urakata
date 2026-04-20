@@ -1,66 +1,54 @@
-
 <!DOCTYPE html>
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>マイページ</title>
+  <!-- 共通スタイルを読み込み -->
+  <link rel="stylesheet" href="common.css">
   <style>
-    :root {
-      --bg-color: #F8FAF7; --card-bg: #FFFFFF; --text-main: #1A1C19; --text-sub: #43483E;
-      --primary-container: #C2E7FF; --on-primary-container: #001D35;
-      --error-container: #FFDAD6; --on-error-container: #410002;
-      --tertiary-container: #EADDFF; --on-tertiary-container: #21005D;
-      --nav-height: 80px; --header-height: 64px;
-    }
-    body { font-family: 'Helvetica Neue', Arial, sans-serif; background-color: var(--bg-color); color: var(--text-main); margin: 0; padding: var(--header-height) 20px var(--nav-height) 20px; max-width: 800px; margin-left: auto; margin-right: auto; }
-    header { position: fixed; top: 0; left: 0; width: 100%; height: var(--header-height); background-color: var(--bg-color); display: flex; align-items: center; justify-content: center; z-index: 100; box-shadow: 0 1px 0 rgba(0,0,0,0.05); }
-    header h1 { font-size: 20px; font-weight: 800; margin: 0; }
-    .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; height: var(--nav-height); background-color: var(--card-bg); display: flex; justify-content: space-around; align-items: center; box-shadow: 0 -2px 16px rgba(0,0,0,0.05); z-index: 100; }
-    .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; text-decoration: none; color: var(--text-sub); width: 64px; height: 64px; border-radius: 16px; }
-    .nav-item.active { background-color: var(--primary-container); color: var(--on-primary-container); font-weight: bold; }
-    .nav-label { font-size: 12px; margin-top: 4px; }
-    .btn { width: 100%; padding: 16px; border: none; border-radius: 100px; font-size: 16px; font-weight: bold; cursor: pointer; text-align: center; }
-    .btn:active { transform: scale(0.96); }
-    .btn-primary { background-color: var(--primary-container); color: var(--on-primary-container); }
-    .btn-error { background-color: var(--error-container); color: var(--on-error-container); }
-    .login-input { width: 100%; box-sizing: border-box; padding: 16px; font-size: 16px; border: 1px solid rgba(0,0,0,0.1); border-radius: 16px; margin-bottom: 16px; outline: none; }
-    .grid-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
-    .item-card { background-color: var(--card-bg); border-radius: 28px; padding: 24px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
-    .item-category { display: inline-block; background-color: var(--bg-color); color: var(--text-sub); padding: 6px 12px; border-radius: 100px; font-size: 12px; font-weight: bold; margin-bottom: 12px; }
-    .item-name { font-size: 20px; font-weight: bold; margin: 0 0 8px 0; }
-    .empty-message { text-align: center; padding: 40px 0; color: var(--text-sub); font-weight: bold; grid-column: 1/-1; }
+    /* マイページ固有のスタイル */
+    .login-input { width: 100%; max-width: 400px; box-sizing: border-box; padding: 16px; font-size: 16px; border: 1px solid rgba(0,0,0,0.1); border-radius: 16px; margin-bottom: 24px; outline: none; display: block; }
+    .card-panel { background: var(--card-bg); padding: 48px; border-radius: 28px; box-shadow: 0 4px 16px rgba(0,0,0,0.03); max-width: 600px; }
+    .welcome-panel { background: var(--tertiary-container); color: var(--on-tertiary-container); padding: 48px; border-radius: 28px; margin-bottom: 48px; }
   </style>
 </head>
 <body>
-  <header><h1>マイページ</h1></header>
 
-  <h2 style="margin-top: 24px;">アカウント情報</h2>
+  <!-- サイドバーがここに挿入されます -->
+  <div id="sidebar-container"></div>
 
-  <div id="mypage-login-section" style="background: var(--card-bg); padding: 24px; border-radius: 28px;">
-    <p style="margin-top: 0; margin-bottom: 20px;">システムを利用するにはログインしてください。(テスト用: 任意の文字を入力)</p>
-    <input type="text" id="username-input" class="login-input" placeholder="ユーザー名">
-    <button id="login-btn" class="btn btn-primary">ログイン</button>
-  </div>
+  <!-- メインコンテンツ -->
+  <main class="main-content">
+    <h2>アカウント情報</h2>
 
-  <div id="mypage-user-section" style="display: none;">
-    <div style="background: var(--tertiary-container); color: var(--on-tertiary-container); padding: 24px; border-radius: 28px; margin-bottom: 24px;">
-      <p style="margin: 0; font-size: 14px;">ようこそ</p>
-      <h3 id="mypage-username" style="margin: 8px 0 16px 0; font-size: 24px;"></h3>
-      <button id="logout-btn" class="btn" style="background: var(--card-bg); color: var(--text-main); width: auto; padding: 10px 24px;">ログアウト</button>
+    <!-- 未ログイン時 -->
+    <div id="mypage-login-section" class="card-panel">
+      <p style="margin-top: 0; margin-bottom: 24px; color: var(--text-sub); line-height: 1.6;">システムを利用するにはログインしてください。<br>(テスト用: 任意の文字を入力)</p>
+      <input type="text" id="username-input" class="login-input" placeholder="ユーザー名">
+      <button id="login-btn" class="btn btn-primary">ログイン</button>
     </div>
 
-    <h3>現在レンタル中の機材</h3>
-    <div id="rented-items-list" class="grid-list"></div>
-  </div>
+    <!-- ログイン済み時 -->
+    <div id="mypage-user-section" style="display: none;">
+      <div class="welcome-panel">
+        <p style="margin: 0; font-size: 16px; opacity: 0.8;">ようこそ</p>
+        <h3 id="mypage-username" style="margin: 8px 0 32px 0; font-size: 36px;"></h3>
+        <button id="logout-btn" class="btn" style="background: var(--card-bg); color: var(--text-main); width: auto;">ログアウト</button>
+      </div>
 
-  <nav class="bottom-nav">
-    <a href="index.html" class="nav-item"><div style="font-size:20px; font-weight:bold;">H</div><span class="nav-label">ホーム</span></a>
-    <a href="cart.html" class="nav-item"><div style="font-size:20px; font-weight:bold;">C</div><span class="nav-label">カート</span></a>
-    <a href="mypage.html" class="nav-item active"><div style="font-size:20px; font-weight:bold;">M</div><span class="nav-label">マイページ</span></a>
-  </nav>
+      <h2>現在レンタル中の機材</h2>
+      <div id="rented-items-list" class="grid-list"></div>
+    </div>
+  </main>
 
+  <!-- 共通スクリプトを読み込み -->
+  <script src="common.js"></script>
   <script>
+    // 初期化処理とサイドバーの読み込み
+    initCommonState();
+    loadSidebar('mypage');
+
     const loginSection = document.getElementById('mypage-login-section');
     const userSection = document.getElementById('mypage-user-section');
     const usernameInput = document.getElementById('username-input');
@@ -96,7 +84,7 @@
         list.innerHTML = '';
 
         if (rented.length === 0) {
-          list.innerHTML = '<div class="empty-message">レンタルしている機材はありません。</div>';
+          list.innerHTML = '<div class="empty-message">現在レンタルしている機材はありません。</div>';
         } else {
           rented.forEach(id => {
             const item = data.find(i => i.id === id);
@@ -105,10 +93,10 @@
             div.className = "item-card";
             div.innerHTML = `
               <div>
-                <span class="item-category">${item.category}</span>
+                <span class="item-category">${item.category} / ${item.maker}</span>
                 <h3 class="item-name">${item.name}</h3>
               </div>
-              <button class="btn btn-error" style="margin-top:16px;" onclick="returnItem('${item.id}')">返却する</button>
+              <button class="btn btn-error" style="margin-top:24px; width: 100%;" onclick="returnItem('${item.id}')">返却する</button>
             `;
             list.appendChild(div);
           });
