@@ -1,1 +1,55 @@
+<style>
+  .sidebar {
+    width: var(--sidebar-width);
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background-color: var(--card-bg);
+    border-right: 1px solid rgba(0,0,0,0.05);
+    padding: 40px 24px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+  }
+  .sidebar h1 {
+    font-size: 24px;
+    font-weight: 800;
+    margin: 0 0 48px 16px;
+    color: var(--text-main);
+  }
+  .nav-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    padding: 16px 24px;
+    text-decoration: none;
+    color: var(--text-sub);
+    border-radius: 100px;
+    font-weight: bold;
+    font-size: 16px;
+    transition: background-color 0.2s, color 0.2s;
+  }
+  .nav-item:hover {
+    background-color: var(--bg-color);
+  }
+  .nav-item.active {
+    background-color: var(--primary-container);
+    color: var(--on-primary-container);
+    pointer-events: none;
+  }
+</style>
 
+<div class="sidebar">
+  <h1>レンタル機材</h1>
+  <div class="nav-menu">
+    <!-- 各リンクに data-page 属性を持たせ、JavaScriptでアクティブ状態を判定します -->
+    <a href="index.html" class="nav-item" data-page="index">ホーム（一覧）</a>
+    <a href="cart.html" class="nav-item" data-page="cart">カート</a>
+    <a href="mypage.html" class="nav-item" data-page="mypage">マイページ</a>
+  </div>
+</div>
