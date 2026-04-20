@@ -19,15 +19,31 @@ function loadSidebar(activePageId) {
 
 // 2. 機材データなどを初期化する関数
 function initCommonState() {
+  // 大分類・小分類を追加した新しいデータ構造
   const defaultData = [
-    { id: "item1", name: "Sony α7 IV", category: "カメラ", maker: "Sony", status: "available", desc: "高画質なフルサイズミラーレスカメラ。動画撮影にも最適です。" },
-    { id: "item2", name: "DJI RS 3 Pro", category: "ジンバル", maker: "DJI", status: "rented", desc: "プロフェッショナル向けのジンバルスタビライザー。" },
-    { id: "item3", name: "Sennheiser MKE 600", category: "マイク", maker: "Sennheiser", status: "available", desc: "クリアな音質で録音できるショットガンマイク。" },
-    { id: "item4", name: "Aputure 300d II", category: "照明", maker: "Aputure", status: "available", desc: "強力で自然な光を作り出すLEDビデオライト。" },
-    { id: "item5", name: "MacBook Pro M3", category: "PC", maker: "Apple", status: "rented", desc: "動画編集もサクサクこなせる高性能ノートPC。" },
-    { id: "item6", name: "HDMIケーブル 10m", category: "ケーブル", maker: "その他", status: "available", desc: "長距離伝送可能なHDMIケーブルです。" }
+    { id: "item1", name: "Shure SM58", mainCategory: "音響", subCategory: "マイク", maker: "Shure", status: "available", desc: "定番のダイナミックマイクです。" },
+    { id: "item2", name: "Yamaha DZR12", mainCategory: "音響", subCategory: "スピーカー", maker: "Yamaha", status: "rented", desc: "高音質なパワードスピーカー。" },
+    { id: "item3", name: "Yamaha QL1", mainCategory: "音響", subCategory: "音響卓", maker: "Yamaha", status: "available", desc: "デジタルミキシングコンソール。" },
+    { id: "item4", name: "XLRケーブル 10m", mainCategory: "音響", subCategory: "ケーブル(音響)", maker: "Canare", status: "available", desc: "定番のマイクケーブルです。" },
+    { id: "item5", name: "Aputure LS 600d Pro", mainCategory: "照明", subCategory: "LED Par", maker: "Aputure", status: "available", desc: "高出力なLED照明。" },
+    { id: "item6", name: "ダボ付きハンガー", mainCategory: "照明", subCategory: "ハンガー", maker: "Kupo", status: "available", desc: "照明吊り下げ用ハンガー。" },
+    { id: "item7", name: "DMXケーブル 10m", mainCategory: "照明", subCategory: "ケーブル(照明)", maker: "Canare", status: "available", desc: "照明制御用DMXケーブル。" },
+    { id: "item8", name: "Sony FX3", mainCategory: "映像", subCategory: "カメラ", maker: "Sony", status: "available", desc: "シネマラインのフルサイズカメラ。" },
+    { id: "item9", name: "Sachtler Ace M", mainCategory: "映像", subCategory: "三脚", maker: "Sachtler", status: "rented", desc: "ビデオ用三脚システム。" },
+    { id: "item10", name: "DJI RS 3 Pro", mainCategory: "映像", subCategory: "ジンバル", maker: "DJI", status: "available", desc: "プロフェッショナル向けジンバル。" },
+    { id: "item11", name: "SDIケーブル 20m", mainCategory: "映像", subCategory: "ケーブル（映像）", maker: "Canare", status: "available", desc: "映像伝送用BNCケーブル。" },
+    { id: "item12", name: "並行電源ケーブル 10m", mainCategory: "電源", subCategory: "並行電源ケーブル", maker: "その他", status: "available", desc: "延長用の電源ケーブル。" },
+    { id: "item13", name: "電源タップ 6個口", mainCategory: "電源", subCategory: "電源タップ", maker: "その他", status: "available", desc: "ステージ用電源タップ。" },
+    { id: "item14", name: "Motorola IC-4110", mainCategory: "その他", subCategory: "無線機", maker: "Motorola", status: "available", desc: "特定小電力トランシーバー。" },
+    { id: "item15", name: "養生テープ", mainCategory: "その他", subCategory: "その他", maker: "その他", status: "available", desc: "機材固定用の養生テープ。" }
   ];
-  if (!localStorage.getItem('equipmentData')) localStorage.setItem('equipmentData', JSON.stringify(defaultData));
-  if (!localStorage.getItem('cartItemIds')) localStorage.setItem('cartItemIds', JSON.stringify([]));
-  if (!localStorage.getItem('rentedItemIds')) localStorage.setItem('rentedItemIds', JSON.stringify([]));
+
+  let currentData = JSON.parse(localStorage.getItem('equipmentData') || 'null');
+  
+  // 古いデータ構造（mainCategoryがない場合）はリセットして新しいデータをセット
+  if (!currentData || currentData.length === 0 || !currentData[0].mainCategory) {
+    localStorage.setItem('equipmentData', JSON.stringify(defaultData));
+    localStorage.setItem('cartItemIds', JSON.stringify([]));
+    localStorage.setItem('rentedItemIds', JSON.stringify([]));
+  }
 }
