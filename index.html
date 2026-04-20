@@ -10,8 +10,8 @@
     .search-container { background: var(--card-bg); padding: 32px; border-radius: 28px; margin-bottom: 40px; box-shadow: 0 4px 16px rgba(0,0,0,0.03); }
     .search-input { width: 100%; box-sizing: border-box; padding: 16px 24px; font-size: 16px; border: 1px solid rgba(0,0,0,0.1); border-radius: 100px; background-color: var(--bg-color); outline: none; margin-bottom: 16px; transition: border-color 0.3s; }
     .search-input:focus { border-color: var(--text-sub); }
-    .search-filters { display: flex; gap: 16px; }
-    .search-select { flex: 1; padding: 16px 24px; font-size: 16px; border: 1px solid rgba(0,0,0,0.1); border-radius: 100px; background-color: var(--bg-color); outline: none; cursor: pointer; }
+    .search-filters { display: flex; gap: 16px; flex-wrap: wrap; }
+    .search-select { flex: 1; min-width: 200px; padding: 16px 24px; font-size: 16px; border: 1px solid rgba(0,0,0,0.1); border-radius: 100px; background-color: var(--bg-color); outline: none; cursor: pointer; }
   </style>
 </head>
 <body>
@@ -25,7 +25,9 @@
     <div class="search-container">
       <input type="text" id="search-input" class="search-input" placeholder="機材名で検索...">
       <div class="search-filters">
-        <select id="category-select" class="search-select"><option value="">すべてのジャンル</option></select>
+        <!-- 大分類・小分類のプルダウンに変更 -->
+        <select id="main-category-select" class="search-select"><option value="">すべての大分類</option></select>
+        <select id="sub-category-select" class="search-select"><option value="">すべての小分類</option></select>
         <select id="maker-select" class="search-select"><option value="">すべてのメーカー</option></select>
       </div>
     </div>
@@ -39,16 +41,39 @@
     loadSidebar('index');
 
     const searchInput = document.getElementById('search-input');
-    const categorySelect = document.getElementById('category-select');
+    const mainCategorySelect = document.getElementById('main-category-select');
+    const subCategorySelect = document.getElementById('sub-category-select');
     const makerSelect = document.getElementById('maker-select');
 
     function initFilters(data) {
-      const categories = [...new Set(data.map(item => item.category))];
+      const mainCategories = [...new Set(data.map(item => item.mainCategory))];
       const makers = [...new Set(data.map(item => item.maker))];
-      categories.forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; categorySelect.appendChild(o); });
+      
+      mainCategories.forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; mainCategorySelect.appendChild(o); });
       makers.forEach(m => { const o = document.createElement('option'); o.value = m; o.textContent = m; makerSelect.appendChild(o); });
+      
+      // 大分類が変更されたら小分類の選択肢を連動して更新する
+      mainCategorySelect.addEventListener('change', () => {
+        const selectedMain = mainCategorySelect.value;
+        subCategorySelect.innerHTML = '<option value="">すべての小分類</option>';
+        
+        let subCategories = [];
+        if (selectedMain) {
+          subCategories = [...new Set(data.filter(item => item.mainCategory === selectedMain).map(item => item.subCategory))];
+        } else {
+          subCategories = [...new Set(data.map(item => item.subCategory))];
+        }
+        
+        subCategories.forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; subCategorySelect.appendChild(o); });
+        renderIndex();
+      });
+
+      // 初期状態で小分類を全件セット
+      const allSubCategories = [...new Set(data.map(item => item.subCategory))];
+      allSubCategories.forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; subCategorySelect.appendChild(o); });
+
       searchInput.addEventListener('input', renderIndex);
-      categorySelect.addEventListener('change', renderIndex);
+      subCategorySelect.addEventListener('change', renderIndex);
       makerSelect.addEventListener('change', renderIndex);
     }
 
@@ -58,11 +83,15 @@
       list.innerHTML = '';
       
       const query = searchInput.value.toLowerCase();
-      const cat = categorySelect.value;
+      const mainCat = mainCategorySelect.value;
+      const subCat = subCategorySelect.value;
       const mak = makerSelect.value;
 
       const filtered = data.filter(item => {
-        return item.name.toLowerCase().includes(query) && (cat === '' || item.category === cat) && (mak === '' || item.maker === mak);
+        return item.name.toLowerCase().includes(query) && 
+               (mainCat === '' || item.mainCategory === mainCat) && 
+               (subCat === '' || item.subCategory === subCat) && 
+               (mak === '' || item.maker === mak);
       });
 
       if (filtered.length === 0) {
@@ -77,7 +106,7 @@
         a.className = `item-card status-${item.status}`;
         a.innerHTML = `
           <div>
-            <span class="item-category">${item.category} / ${item.maker}</span>
+            <span class="item-category">${item.mainCategory} &gt; ${item.subCategory} / ${item.maker}</span>
             <h3 class="item-name">${item.name}</h3>
           </div>
           <div class="status-container">
